@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>මස් කඩේ බිල්පත</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --maroon:#6B1E23;
+    --maroon-dark:#4A1418;
+    --cream:#F3EDE0;
+    --bone:#E8DCC8;
+    --ink:#2B2420;
+    --brass:#B08D57;
+    --line:#D8CBB0;
+    --danger:#8a3a2c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bone);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    background:var(--maroon);
+    color:var(--cream);
+    padding:18px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 2px 0 var(--maroon-dark);
+  }
+  .brand{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:30px;
+    letter-spacing:1px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--brass);
+    color:var(--maroon-dark);
+    padding:2px 7px;
+    border-radius:3px;
+    letter-spacing:0.5px;
+  }
+  .icon-btn{
+    background:transparent;
+    border:1px solid var(--cream);
+    color:var(--cream);
+    padding:8px 14px;
+    border-radius:6px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,0.1); }
+
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:22px 16px 60px;
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .card h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:20px;
+    letter-spacing:0.5px;
+    color:var(--maroon);
+    margin:0 0 14px;
+    border-bottom:2px solid var(--brass);
+    padding-bottom:8px;
+  }
+
+  label{
+    display:block;
+    font-size:12px;
+    color:#7a6f5f;
+    margin-bottom:4px;
+    font-weight:600;
+  }
+  input, select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus, select:focus{ outline:2px solid var(--brass); border-color:var(--brass); }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .grid2, .grid3{ grid-template-columns:1fr; } }
+
+  .item-row{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr auto;
+    gap:8px;
+    align-items:end;
+    padding:10px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  @media (max-width:640px){
+    .item-row{ grid-template-columns:1fr 1fr; }
+  }
+  .item-row .amt{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    padding:9px 6px;
+    text-align:right;
+  }
+  .del-btn{
+    background:transparent;
+    border:none;
+    color:var(--danger);
+    font-size:20px;
+    cursor:pointer;
+    padding:6px;
+    line-height:1;
+  }
+  .add-item-btn{
+    margin-top:10px;
+    background:var(--bone);
+    border:1px dashed var(--brass);
+    color:var(--maroon);
+    padding:9px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13px;
+  }
+  .add-item-btn:hover{ background:#eee0c4; }
+
+  .totals{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:2px solid var(--ink);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:flex-end;
+  }
+  .totals .row{ display:flex; gap:20px; font-family:'IBM Plex Mono',monospace; font-size:14px; width:260px; justify-content:space-between; }
+  .totals .grand{ font-size:22px; font-weight:700; color:var(--maroon); }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    padding:11px 20px;
+    border-radius:7px;
+    border:none;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-primary{ background:var(--maroon); color:var(--cream); }
+  .btn-primary:hover{ background:var(--maroon-dark); }
+  .btn-secondary{ background:var(--bone); color:var(--ink); border:1px solid var(--line); }
+  .btn-secondary:hover{ background:#e8dcc0; }
+  .btn-ghost{ background:transparent; color:var(--danger); border:1px solid var(--danger); }
+
+  .history-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .history-item:last-child{ border-bottom:none; }
+  .history-item .meta{ color:#7a6f5f; font-size:12px; }
+  .history-item .hbtns button{
+    background:none; border:1px solid var(--line); border-radius:5px;
+    padding:5px 10px; margin-left:6px; cursor:pointer; font-size:12px;
+  }
+  .empty{ color:#9a8f7c; font-size:13px; text-align:center; padding:20px 0; }
+
+  .settings-panel{ display:none; }
+  .settings-panel.open{ display:block; }
+
+  /* Printable receipt */
+  #printArea{ display:none; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #printArea{
+      display:block;
+      position:absolute; top:0; left:0; width:100%;
+      font-family:'IBM Plex Mono',monospace;
+      color:#000;
+      padding:10px;
+    }
+    .receipt{ max-width:340px; margin:0 auto; }
+    .receipt h1{ font-family:'Bebas Neue',sans-serif; font-size:26px; text-align:center; margin:0 0 2px; letter-spacing:1px; }
+    .receipt .sub{ text-align:center; font-size:11px; margin-bottom:10px; }
+    .receipt .hr{ border-top:1px dashed #000; margin:8px 0; }
+    .receipt table{ width:100%; border-collapse:collapse; font-size:12px; }
+    .receipt td{ padding:3px 0; }
+    .receipt .r{ text-align:right; }
+    .receipt .grand{ font-size:16px; font-weight:700; }
+    .receipt .foot{ text-align:center; font-size:11px; margin-top:12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">මස් කඩේ බිල්පත <span class="tag">BILLING</span></div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="icon-btn" id="driveBtn" onclick="handleDriveButton()">☁ Google Drive</button>
+    <button class="icon-btn" onclick="toggleSettings()">⚙ කඩේ විස්තර</button>
+  </div>
+</div>
+
+<div id="driveStatus" style="display:none; padding:10px 16px; font-size:13px; font-weight:600; text-align:center;"></div>
+
+<div id="storageStatus" style="display:none; padding:10px 16px; font-size:13px; font-weight:600; text-align:center;"></div>
+
+<div class="wrap">
+
+  <div class="card settings-panel" id="settingsPanel">
+    <h2>කඩේ විස්තර (Shop Details)</h2>
+    <div class="grid2">
+      <div>
+        <label>කඩේ නම (Shop Name)</label>
+        <input id="shopName" value="මස් වෙළඳසැල - අම්බලන්තොට" readonly style="background:var(--bone); color:#7a6f5f; cursor:not-allowed;">
+      </div>
+      <div>
+        <label>දුරකථන අංකය (Phone)</label>
+        <input id="shopPhone" placeholder="07X XXX XXXX">
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <label>ලිපිනය (Address)</label>
+      <input id="shopAddress" value="අම්බලන්තොට" readonly style="background:var(--bone); color:#7a6f5f; cursor:not-allowed;">
+    </div>
+    <div style="margin-top:14px;">
+      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>නව බිල්පත (New Bill)</h2>
+    <div class="grid3">
+      <div>
+        <label>Bill No</label>
+        <input id="billNo" readonly style="font-family:'IBM Plex Mono',monospace;">
+      </div>
+      <div>
+        <label>දිනය (Date)</label>
+        <input id="billDate" type="date">
+      </div>
+      <div>
+        <label>පාරිභෝගික නම (Customer, optional)</label>
+        <input id="customerName" placeholder="Walk-in">
+      </div>
+    </div>
+
+    <div style="margin-top:18px;">
+      <div class="item-row" style="border-bottom:2px solid var(--ink); padding-bottom:6px;">
+        <label style="margin:0;">භාණ්ඩය (Item)</label>
+        <label style="margin:0;">බර kg</label>
+        <label style="margin:0;">Rs/kg</label>
+        <label style="margin:0;">එකතුව</label>
+        <span></span>
+      </div>
+      <div id="itemsContainer"></div>
+    </div>
+    <button class="add-item-btn" onclick="addItemRow()">+ අයිතමයක් එකතු කරන්න</button>
+
+    <div class="totals">
+      <div class="row"><span>Sub Total</span><span id="subTotalDisp">Rs. 0.00</span></div>
+      <div class="row">
+        <span>වට්ටම් (Discount Rs)</span>
+        <input id="discount" type="number" value="0" min="0" style="width:100px; text-align:right;" oninput="renderTotals()">
+      </div>
+      <div class="row grand"><span>මුළු එකතුව</span><span id="grandTotalDisp">Rs. 0.00</span></div>
+    </div>
+
+    <div class="actions" style="margin-top:16px; flex-direction:column; align-items:stretch;">
+      <button class="btn btn-primary" onclick="saveAndPrint()" style="width:100%; text-align:center;">🖨 Save & Print</button>
+      <button class="btn btn-secondary" onclick="newBill()" style="width:100%; text-align:center;">New Bill</button>
+    </div>
+  </div>
+
+  <div class="card" id="driveCard" style="display:none;">
+    <h2>☁ Google Drive Backup</h2>
+    <p style="font-size:13px; color:#7a6f5f; margin:0 0 12px;">ඔයාගේ bills සහ settings ටික Google Drive එකේ (ඔයාගේම account එකේ, private විදිහට) save කරගන්න පුළුවන්. වෙන phone/browser එකකින් login කරලා restore කරන්නත් පුළුවන්.</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="backupToDrive()">⬆ Backup to Drive</button>
+      <button class="btn btn-secondary" onclick="restoreFromDrive()">⬇ Restore from Drive</button>
+    </div>
+    <div id="driveInfo" style="margin-top:10px; font-size:12px; color:#7a6f5f;"></div>
+  </div>
+
+  <div class="card">
+    <h2>පෙර බිල්පත් (Bill History)</h2>
+    <div id="historyList"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<div id="printArea">
+  <div class="receipt" id="receiptContent"></div>
+</div>
+
+<script>
+// Local (this browser only) storage shim — works fully offline, no server needed.
+const storage = {
+  async get(key){
+    const v = localStorage.getItem(key);
+    return v !== null ? {key, value:v} : null;
+  },
+  async set(key, value){
+    localStorage.setItem(key, value);
+    return {key, value};
+  },
+  async delete(key){
+    localStorage.removeItem(key);
+    return {key, deleted:true};
+  },
+  async list(prefix){
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix || ''));
+    return {keys};
+  }
+};
+
+let itemCounter = 0;
+let itemRows = {};
+let currentBillId = null;
+
+const MEAT_OPTIONS = ["කුකුල් මස් (Chicken)","එළු මස් (Mutton)","ගោවි මස් (Beef)","ඌරු මස් (Pork)","මාළු (Fish)","සොසේජස් (Sausages)","වෙනත් (Other)"];
+
+function fmt(n){ return "Rs. " + (Number(n)||0).toFixed(2); }
+
+function addItemRow(prefill){
+  const id = 'row_' + (itemCounter++);
+  const container = document.getElementById('itemsContainer');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.id = id;
+  const optionsHtml = MEAT_OPTIONS.map(o=>`<option value="${o}">${o}</option>`).join('');
+  row.innerHTML = `
+    <select onchange="handleItemSelect('${id}', this)">
+      <option value="">-- තෝරන්න --</option>
+      ${optionsHtml}
+    </select>
+    <input type="number" step="0.01" min="0" placeholder="0.00" oninput="renderTotals()" class="weight">
+    <input type="number" step="0.01" min="0" placeholder="0.00" oninput="renderTotals()" class="price">
+    <div class="amt">Rs. 0.00</div>
+    <button class="del-btn" onclick="removeRow('${id}')" title="Remove">✕</button>
+  `;
+  container.appendChild(row);
+  if(prefill){
+    row.querySelector('select').value = prefill.name || '';
+    row.querySelector('.weight').value = prefill.weight || '';
+    row.querySelector('.price').value = prefill.price || '';
+  }
+  renderTotals();
+}
+
+function handleItemSelect(id, sel){
+  if(sel.value === "වෙනත් (Other)"){
+    const name = prompt("භාණ්ඩයේ නම ලියන්න:");
+    if(name){
+      const opt = document.createElement('option');
+      opt.value = name; opt.text = name; opt.selected = true;
+      sel.insertBefore(opt, sel.lastElementChild);
+    }
+  }
+}
+
+function removeRow(id){
+  document.getElementById(id).remove();
+  renderTotals();
+}
+
+function renderTotals(){
+  let subTotal = 0;
+  document.querySelectorAll('.item-row').forEach(row=>{
+    if(!row.querySelector('.weight')) return;
+    const w = parseFloat(row.querySelector('.weight').value)||0;
+    const p = parseFloat(row.querySelector('.price').value)||0;
+    const amt = w*p;
+    row.querySelector('.amt').textContent = fmt(amt);
+    subTotal += amt;
+  });
+  const discount = parseFloat(document.getElementById('discount').value)||0;
+  const grand = Math.max(subTotal - discount, 0);
+  document.getElementById('subTotalDisp').textContent = fmt(subTotal);
+  document.getElementById('grandTotalDisp').textContent = fmt(grand);
+  return {subTotal, discount, grand};
+}
+
+async function getSettings(){
+  try{
+    const r = await storage.get('shop-settings', false);
+    return r ? JSON.parse(r.value) : {name:'මස් වෙළඳසැල - අම්බලන්තොට', phone:'', address:'අම්බලන්තොට'};
+  }catch(e){
+    return {name:'මස් වෙළඳසැල - අම්බලන්තොට', phone:'', address:'අම්බලන්තොට'};
+  }
+}
+
+async function saveSettings(){
+  const data = {
+    name: 'මස් වෙළඳසැල - අම්බලන්තොට',
+    phone: document.getElementById('shopPhone').value,
+    address: 'අම්බලන්තොට'
+  };
+  try{
+    await storage.set('shop-settings', JSON.stringify(data), false);
+    toggleSettings();
+  }catch(e){ alert('Settings save failed: ' + e.message); }
+}
+
+function toggleSettings(){
+  document.getElementById('settingsPanel').classList.toggle('open');
+}
+
+async function loadSettingsIntoForm(){
+  const s = await getSettings();
+  document.getElementById('shopName').value = s.name||'';
+  document.getElementById('shopPhone').value = s.phone||'';
+  document.getElementById('shopAddress').value = s.address||'';
+}
+
+async function nextBillNo(){
+  let counter = 1;
+  try{
+    const r = await storage.get('bill-counter', false);
+    counter = r ? (parseInt(r.value)+1) : 1;
+  }catch(e){ counter = 1; }
+  return counter;
+}
+
+async function newBill(){
+  currentBillId = null;
+  document.getElementById('itemsContainer').innerHTML = '';
+  document.getElementById('customerName').value = '';
+  document.getElementById('discount').value = 0;
+  document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
+  const n = await nextBillNo();
+  document.getElementById('billNo').value = 'B' + String(n).padStart(4,'0');
+  addItemRow();
+}
+
+async function saveAndPrint(){
+  const items = [];
+  document.querySelectorAll('.item-row').forEach(row=>{
+    const sel = row.querySelector('select');
+    if(!sel) return;
+    const w = parseFloat(row.querySelector('.weight').value)||0;
+    const p = parseFloat(row.querySelector('.price').value)||0;
+    if(sel.value && w>0){
+      items.push({name: sel.value, weight:w, price:p, amount:w*p});
+    }
+  });
+  if(items.length===0){ alert('අඩුම තරමින් අයිතමයක් එකතු කරන්න.'); return; }
+
+  const totals = renderTotals();
+  const billNo = document.getElementById('billNo').value;
+  const billDate = document.getElementById('billDate').value;
+  const customer = document.getElementById('customerName').value || 'Walk-in';
+  const settings = await getSettings();
+
+  const bill = {
+    id: billNo,
+    billNo, billDate, customer, items,
+    subTotal: totals.subTotal, discount: totals.discount, grand: totals.grand,
+    savedAt: new Date().toISOString()
+  };
+
+  try{
+    await storage.set('bills:' + billNo, JSON.stringify(bill), false);
+    const counterNum = parseInt(billNo.replace('B',''));
+    await storage.set('bill-counter', String(counterNum), false);
+  }catch(e){ alert('Bill save failed: ' + e.message); }
+
+  renderReceipt(bill, settings);
+  await loadHistory();
+  window.print();
+}
+
+function renderReceipt(bill, settings){
+  const rows = bill.items.map(it=>`
+    <tr>
+      <td colspan="3">${it.name}</td>
+    </tr>
+    <tr>
+      <td>${it.weight.toFixed(2)} kg</td>
+      <td>x ${it.price.toFixed(2)}</td>
+      <td class="r">${it.amount.toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('receiptContent').innerHTML = `
+    <h1>${settings.name}</h1>
+    <div class="sub">${settings.address||''} ${settings.phone? ' | '+settings.phone:''}</div>
+    <div class="hr"></div>
+    <table>
+      <tr><td>Bill No</td><td class="r">${bill.billNo}</td></tr>
+      <tr><td>Date</td><td class="r">${bill.billDate}</td></tr>
+      <tr><td>Customer</td><td class="r">${bill.customer}</td></tr>
+    </table>
+    <div class="hr"></div>
+    <table>${rows}</table>
+    <div class="hr"></div>
+    <table>
+      <tr><td>Sub Total</td><td class="r">Rs. ${bill.subTotal.toFixed(2)}</td></tr>
+      <tr><td>Discount</td><td class="r">Rs. ${bill.discount.toFixed(2)}</td></tr>
+      <tr class="grand"><td>Total</td><td class="r">Rs. ${bill.grand.toFixed(2)}</td></tr>
+    </table>
+    <div class="hr"></div>
+    <div class="foot">ස්තුතියි! Thank you for your purchase.</div>
+  `;
+}
+
+async function loadHistory(){
+  const listEl = document.getElementById('historyList');
+  try{
+    const keysRes = await storage.list('bills:', false);
+    const keys = keysRes ? keysRes.keys : [];
+    if(!keys || keys.length===0){
+      listEl.innerHTML = '<div class="empty">තවම බිල්පත් නැත.</div>';
+      return;
+    }
+    const bills = [];
+    for(const k of keys){
+      try{
+        const r = await storage.get(k, false);
+        if(r) bills.push(JSON.parse(r.value));
+      }catch(e){}
+    }
+    bills.sort((a,b)=> (b.savedAt||'').localeCompare(a.savedAt||''));
+    listEl.innerHTML = bills.map(b=>`
+      <div class="history-item">
+        <div>
+          <div><strong>${b.billNo}</strong> — ${b.customer}</div>
+          <div class="meta">${b.billDate} · Rs. ${b.grand.toFixed(2)}</div>
+        </div>
+        <div class="hbtns">
+          <button onclick='reprint("${b.billNo}")'>🖨 Print</button>
+          <button onclick='deleteBill("${b.billNo}")' style="color:#8a3a2c;">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }catch(e){
+    listEl.innerHTML = '<div class="empty">History load failed.</div>';
+  }
+}
+
+async function reprint(billNo){
+  try{
+    const r = await storage.get('bills:' + billNo, false);
+    if(!r) return;
+    const bill = JSON.parse(r.value);
+    const settings = await getSettings();
+    renderReceipt(bill, settings);
+    window.print();
+  }catch(e){ alert('Could not load bill: ' + e.message); }
+}
+
+async function deleteBill(billNo){
+  if(!confirm('මෙම බිල්පත මකන්නද?')) return;
+  try{
+    await storage.delete('bills:' + billNo, false);
+    await loadHistory();
+  }catch(e){ alert('Delete failed: ' + e.message); }
+}
+
+function testStorage(){
+  const banner = document.getElementById('storageStatus');
+  try{
+    const testKey = '__storage_test__';
+    localStorage.setItem(testKey, '1');
+    const readBack = localStorage.getItem(testKey);
+    localStorage.removeItem(testKey);
+    if(readBack !== '1') throw new Error('Read-back mismatch');
+    return true;
+  }catch(e){
+    banner.style.display = 'block';
+    banner.style.background = '#8a3a2c';
+    banner.style.color = '#fff';
+    banner.textContent = '⚠️ මේ browser එකේ data save කරන්න බැහැ (' + e.message + '). Private/Incognito mode නම් normal tab එකකින් open කරන්න.';
+    return false;
+  }
+}
+
+// ===== Google Drive Backup/Restore =====
+const GOOGLE_CLIENT_ID = '775180977202-c3tvli3v12a32kfki38f2f3padnh7pge.apps.googleusercontent.com';
+const GOOGLE_API_KEY = 'AIzaSyAhX0gRDSjifX_wD4OjBFhmJyzj0tJdPLU';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+const BACKUP_FILENAME = 'meat-shop-billing-backup.json';
+
+let gisTokenClient = null;
+let driveAccessToken = null;
+
+function setDriveStatus(msg, isError){
+  const el = document.getElementById('driveStatus');
+  el.style.display = 'block';
+  el.style.background = isError ? '#8a3a2c' : '#2e6b3e';
+  el.style.color = '#fff';
+  el.textContent = msg;
+  setTimeout(()=>{ el.style.display='none'; }, 5000);
+}
+
+function initGoogleDrive(){
+  if(typeof google === 'undefined' || !google.accounts){
+    setTimeout(initGoogleDrive, 300);
+    return;
+  }
+  gisTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: (resp) => {
+      if(resp.error){
+        setDriveStatus('❌ Google Drive login අසාර්ථකයි: ' + resp.error, true);
+        return;
+      }
+      driveAccessToken = resp.access_token;
+      updateDriveUI(true);
+      setDriveStatus('✅ Google Drive connect වුනා!');
+    }
+  });
+}
+
+function updateDriveUI(connected){
+  const btn = document.getElementById('driveBtn');
+  const card = document.getElementById('driveCard');
+  if(connected){
+    btn.textContent = '☁ Drive Connected';
+    card.style.display = 'block';
+  } else {
+    btn.textContent = '☁ Google Drive';
+    card.style.display = 'none';
+  }
+}
+
+function handleDriveButton(){
+  if(driveAccessToken){
+    document.getElementById('driveCard').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  if(!gisTokenClient){
+    setDriveStatus('Google Drive service load වෙමින් පවතී, ටිකක් ඉඳලා try කරන්න.', true);
+    return;
+  }
+  gisTokenClient.requestAccessToken();
+}
+
+async function driveApiFetch(url, options={}){
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers||{}),
+      'Authorization': 'Bearer ' + driveAccessToken
+    }
+  });
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error('Drive API error ' + res.status + ': ' + text);
+  }
+  return res;
+}
+
+async function findBackupFile(){
+  const res = await driveApiFetch(
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&q=' +
+    encodeURIComponent(`name='${BACKUP_FILENAME}'`)
+  );
+  const data = await res.json();
+  return (data.files && data.files.length) ? data.files[0] : null;
+}
+
+function collectAllLocalData(){
+  const data = {};
+  for(let i=0; i<localStorage.length; i++){
+    const key = localStorage.key(i);
+    data[key] = localStorage.getItem(key);
+  }
+  return data;
+}
+
+async function backupToDrive(){
+  if(!driveAccessToken){ setDriveStatus('කලින් Google Drive connect කරන්න.', true); return; }
+  const infoEl = document.getElementById('driveInfo');
+  infoEl.textContent = 'Backup වෙමින් පවතී...';
+  try{
+    const payload = JSON.stringify(collectAllLocalData());
+    const existing = await findBackupFile();
+    const metadata = { name: BACKUP_FILENAME, mimeType: 'application/json' };
+    if(!existing) metadata.parents = ['appDataFolder'];
+
+    const boundary = '-------meatshopbackup';
+    const multipartBody =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n` +
+      `--${boundary}--`;
+
+    const url = existing
+      ? `https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=multipart`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+    const method = existing ? 'PATCH' : 'POST';
+
+    await driveApiFetch(url, {
+      method,
+      headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
+      body: multipartBody
+    });
+
+    const now = new Date().toLocaleString('si-LK');
+    infoEl.textContent = '✅ අන්තිමට backup වුනේ: ' + now;
+    setDriveStatus('✅ Backup සාර්ථකයි!');
+  }catch(e){
+    infoEl.textContent = '';
+    setDriveStatus('❌ Backup අසාර්ථකයි: ' + e.message, true);
+  }
+}
+
+async function restoreFromDrive(){
+  if(!driveAccessToken){ setDriveStatus('කලින් Google Drive connect කරන්න.', true); return; }
+  if(!confirm('Restore කළොත් මේ phone/browser එකේ දැනට තියෙන bills, Drive එකේ backup එකෙන් replace වෙනවා. දිගටම කරන්නද?')) return;
+
+  const infoEl = document.getElementById('driveInfo');
+  infoEl.textContent = 'Restore වෙමින් පවතී...';
+  try{
+    const existing = await findBackupFile();
+    if(!existing){
+      infoEl.textContent = '';
+      setDriveStatus('Drive එකේ backup file එකක් හමු වුනේ නෑ.', true);
+      return;
+    }
+    const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files/${existing.id}?alt=media`);
+    const data = await res.json();
+
+    localStorage.clear();
+    Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
+
+    await loadSettingsIntoForm();
+    await newBill();
+    await loadHistory();
+
+    infoEl.textContent = '✅ Restore සම්පූර්ණයි (' + (existing.modifiedTime ? new Date(existing.modifiedTime).toLocaleString('si-LK') : '') + ' backup එකෙන්)';
+    setDriveStatus('✅ Restore සාර්ථකයි!');
+  }catch(e){
+    infoEl.textContent = '';
+    setDriveStatus('❌ Restore අසාර්ථකයි: ' + e.message, true);
+  }
+}
+
+initGoogleDrive();
+
+(async function init(){
+  const ok = testStorage();
+  await loadSettingsIntoForm();
+  await newBill();
+  await loadHistory();
+  if(ok){
+    const banner = document.getElementById('storageStatus');
+    banner.style.display = 'block';
+    banner.style.background = '#2e6b3e';
+    banner.style.color = '#fff';
+    banner.textContent = '✅ Storage OK — data මේ phone/browser එකේම save වෙනවා.';
+    setTimeout(()=>{ banner.style.display='none'; }, 4000);
+  }
+})();
+</script>
+</body>
+</html>
